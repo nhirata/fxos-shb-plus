@@ -1,9 +1,10 @@
 {
-  "name": "Homebar-Plus",
-  "description": "Add \"Show Windows\" and \"Kill Current\" buttons to the homebar.",
+  "name": "WindowShrink-Plus",
+  "description": "Add \"Show Windows\" and \"Tilt\" buttons to the homebar.",
   "manifest_version": 3,
   "version": "3.0",
   "author": "Michael Henretty",
+  "modifier": "Naoki Hirata",
   "content_scripts": [{
     "matches": ["app://system.gaiamobile.org/index.html"],
     "js": ["shb-plus.js"]

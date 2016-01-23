@@ -2,7 +2,7 @@
   function init() {
     const ID_STYLES = 'shb-styles';
     const ID_SHOW_WINDOWS = 'show-windows-button';
-    const ID_KILL_WINDOW = 'kill-window-button';
+    const ID_TILT_WINDOW = 'tilt-window-button';
 
     var buttons = document.getElementById('software-buttons');
     if (!buttons) {
@@ -17,13 +17,13 @@
     }
     removeElement(ID_STYLES);
     removeElement(ID_SHOW_WINDOWS);
-    removeElement(ID_KILL_WINDOW);
+    removeElement(ID_TILT_WINDOW);
 
     // Inject inline styles
     var style = document.createElement('style');
     style.id = ID_STYLES;
     style.appendChild(document.createTextNode(`
-      #${ID_SHOW_WINDOWS}, #${ID_KILL_WINDOW} {
+      #${ID_SHOW_WINDOWS}, #${ID_TILT_WINDOW} {
         position: absolute;
         top: 0;
         height: 5rem;
@@ -38,7 +38,7 @@
       }
 
       #${ID_SHOW_WINDOWS}:active,
-      #${ID_KILL_WINDOW}:active {
+      #${ID_TILT_WINDOW}:active {
         color: #00caf2;
       }
 
@@ -46,18 +46,18 @@
         right: 1rem;
       }
 
-      #${ID_KILL_WINDOW} {
+      #${ID_TILT_WINDOW} {
         left: 1rem;
       }
 
-      #${ID_KILL_WINDOW}.flip {
+      #${ID_TILT_WINDOW}.flip {
         animation-name: flip;
         animation-duration: 0.7s;
         backface-visibility: visible;
       }
 
       @media (orientation: landscape) {
-        #${ID_SHOW_WINDOWS}, #${ID_KILL_WINDOW} {
+        #${ID_SHOW_WINDOWS}, #${ID_TILT_WINDOW} {
           width: 100%;
           right: 0;
           left: unset;
@@ -68,7 +68,7 @@
           bottom: unset;
         }
 
-        #${ID_KILL_WINDOW} {
+        #${ID_TILT_WINDOW} {
           top: unset;
           bottom: 1.5rem;
         }
@@ -116,37 +116,24 @@
     // Insert as first child so dead-space node prevents accidental clicks.
     buttons.insertBefore(showWindows, buttons.firstChild);
 
-    var kill = document.createElement('button');
-    kill.id = ID_KILL_WINDOW;
-    kill.textContent = '☠';
-    kill.addEventListener('touchstart', function() {
+    var tilt = document.createElement('button');
+    tilt.id = ID_TILT_WINDOW;
+    tilt.textContent = '☠';
+    tilt.addEventListener('touchstart', function() {
       var oldApp = window.wrappedJSObject.StackManager.getCurrent();
+      var windowshrink=false;
       if (oldApp) {
-        kill.addEventListener('animationend', function afterFlip() {
-          kill.removeEventListener('animationend', afterFlip);
-          kill.classList.remove('flip');
-        });
-        kill.classList.add('flip');
-        window.wrappedJSObject.SheetsTransition.begin('ltr');
-        window.wrappedJSObject.SheetsTransition.moveInDirection('ltr', 0.001);
-        setTimeout(function() {
-          window.wrappedJSObject.SheetsTransition.snapLeft(0.0005);
-          window.wrappedJSObject.StackManager.goPrev();
-          window.addEventListener('sheets-gesture-end', function snapWait() {
-            window.removeEventListener('sheets-gesture-end', snapWait);
-            oldApp.kill();
-          });
-        });
+          if (!windowshrink) {
+             AppWindowManager.dispatchEvent(new CustomEvent('shrinking-start'));
+          }
+          else {
+             AppWindowManager.dispatchEvent(new CustomEvent('shrinking-stop'));
+          }
+          windowshrink=!windowshrink;
       }
-      if('vibrate' in navigator) {
-        // ... vibrate for a second
-        navigator.vibrate(50);
-      }
-    }, true);
-    // Insert as first child so dead-space node prevents accidental clicks.
-    buttons.insertBefore(kill, buttons.firstChild);
+    });
+   buttons.insertBefore(tilt, buttons.firstChild);
   }
-
   // Make sure we have the homebar element before booting.
   if (document.getElementById('software-buttons')) {
     init();
@@ -156,7 +143,7 @@
         window.removeEventListener('mozContentEvent', readyListener);
         init();
       }
-    });
-  }
+    }, true);
+  };
 
 }());
