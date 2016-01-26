@@ -115,21 +115,22 @@
     }, true);
     // Insert as first child so dead-space node prevents accidental clicks.
     buttons.insertBefore(showWindows, buttons.firstChild);
-
+    var windowShrink = false;
     var tilt = document.createElement('button');
     tilt.id = ID_TILT_WINDOW;
     tilt.textContent = '☠';
     tilt.addEventListener('touchstart', function() {
-      var oldApp = window.wrappedJSObject.StackManager.getCurrent();
-      var windowshrink=false;
-      if (oldApp) {
-          if (!windowshrink) {
-             AppWindowManager.dispatchEvent(new CustomEvent('shrinking-start'));
+     //  var oldApp = window.wrappedJSObject.StackManager.getCurrent();
+      var currentWindowManager = window.wrappedJSObject.appWindowManager;
+      var currentApp = currentWindowManager.getActiveApp
+      if (currentApp) {
+          if (!windowShrink) {
+             window.dispatchEvent(new CustomEvent('shrinking-start'));
           }
           else {
-             AppWindowManager.dispatchEvent(new CustomEvent('shrinking-stop'));
+             window.dispatchEvent(new CustomEvent('shrinking-stop'));
           }
-          windowshrink=!windowshrink;
+          windowShrink=!windowShrink;
       }
     });
    buttons.insertBefore(tilt, buttons.firstChild);
